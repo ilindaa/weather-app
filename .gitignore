@@ -1,0 +1,2 @@
+# dependencies that are stored in node_modules/ can be installed from the package.json by running npm install
+node_modules/
