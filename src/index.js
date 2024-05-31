@@ -1,4 +1,4 @@
 import './style.css';
-import { getGeocoding } from './weatherAPI';
+import { createWeatherForm } from './display';
 
-getGeocoding("Japan");
+createWeatherForm();
