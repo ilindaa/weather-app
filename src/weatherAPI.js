@@ -1,7 +1,18 @@
+// Handle the name if there are spaces
+function handleName(unhandledName) {
+    let name = unhandledName;
+    if (unhandledName.includes('')) {
+        name = unhandledName.replaceAll(' ', '+');
+    }
+    return name;
+}
+
 // Get the geocode of the location by name or postal code
-async function getGeocoding(name) {
+async function getGeocoding(unhandledName) {
+    const name = await handleName(unhandledName);
+    console.log(name);
     try {
-        const response = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${name}&count=1&language=en&format=json`, {mode: 'cors'});
+        const response = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${name}&count=10&language=en&format=json`, {mode: 'cors'});
         const geocodeData = await response.json();
         console.log("geocodeData:");
         console.log(geocodeData);
@@ -31,7 +42,7 @@ function useSystem(useImperial) {
 async function getWeather(latitude, longitude, useImperial) {
     let units = useSystem(useImperial);
     try {
-        const response = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,apparent_temperature,wind_speed_10m&hourly=temperature_2m,precipitation_probability${units[0]}&${units[1]}&${units[2]}&daily=precipitation_probability_max,sunrise,sunset,uv_index_max&timezone=auto`, {mode: 'cors'});
+        const response = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,apparent_temperature,wind_speed_10m&hourly=temperature_2m,precipitation_probability${units[0]}&${units[1]}&${units[2]}&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,sunrise,sunset,uv_index_max&timezone=auto`, {mode: 'cors'});
         const weatherData = await response.json();
         console.log("weatherData:");
         console.log(weatherData);
@@ -45,30 +56,61 @@ async function getWeather(latitude, longitude, useImperial) {
 // Factory function to process the geocode data and return it as an object
 // country, name, latitude, longitude, timezone
 function processGeocodeData(geocodeData) {
-    const country = geocodeData['results'][0]['country'];
-    const name = geocodeData['results'][0]['name'];
-    const latitude = geocodeData['results'][0]['latitude'];
-    const longitude = geocodeData['results'][0]['longitude'];
-    const timezone = geocodeData['results'][0]['timezone'];
+    const index = 0;
+    const country = geocodeData['results'][index]['country'];
+    const name = geocodeData['results'][index]['name'];
+    const latitude = geocodeData['results'][index]['latitude'];
+    const longitude = geocodeData['results'][index]['longitude'];
+    const timezone = geocodeData['results'][index]['timezone'];
     return { country, name, latitude, longitude, timezone };
 }
 
 // Factory function to process the weather data and return it as an object
 // (current with units) temperature, real feel, wind speed, humidity
 // hourly: current time to whatever time (24 hours), hourly temperature, hourly weather name *and weather image, hourly precipitation
-// weekly: current day to whatever day (7 days), weekly precipitation (total for the day I guess), weather images, and highest and lowest temperature
-// miscellaneous: sunrise, sunset, UV index
+// daily (weekly): current day to whatever day (7 days), weekly precipitation (total for the day I guess), UV index (max), *weather images, and highest and lowest temperature, sunrise, sunset
 function processWeatherData(weatherData) {
-    const temp = weatherData['current']['temperature_2m'];
-    const tempUnits = weatherData['current_units']['temperature_2m'];
-    const realFeel = weatherData['current']['apparent_temperature'];
-    const realFeelUnits = weatherData['current_units']['apparent_temperature'];
-    const humidity = weatherData['current']['relative_humidity_2m'];
-    const humidityUnits = weatherData['current_units']['relative_humidity_2m'];
-    const windSpeed = weatherData['current']['wind_speed_10m'];
-    const windSpeedUnits = weatherData['current_units']['wind_speed_10m'];
+    // Get the current temperature, real feel, humidity, and wind speed and their units
+    const currentTemp = weatherData['current']['temperature_2m'];
+    const currentTempUnits = weatherData['current_units']['temperature_2m'];
+    const currentRealFeel = weatherData['current']['apparent_temperature'];
+    const currentRealFeelUnits = weatherData['current_units']['apparent_temperature'];
+    const currentHumidity = weatherData['current']['relative_humidity_2m'];
+    const currentHumidityUnits = weatherData['current_units']['relative_humidity_2m'];
+    const currentWindSpeed = weatherData['current']['wind_speed_10m'];
+    const currentWindSpeedUnits = weatherData['current_units']['wind_speed_10m'];
+
+    // Todo: Need to get the current hour of the day (in 24 hours) based on the user's local time and their units
+    const currentHour = new Date().getHours();
+    console.log(currentHour);
+    // I only want the current 24 hours of the day
+    const hourlyTime = weatherData['hourly']['time'].slice(currentHour, 24);
+    const hourlyTemp = weatherData['hourly']['temperature_2m'].slice(currentHour, 24);
+    const hourlyTempUnits = weatherData['hourly_units']['temperature_2m'];
+    const hourlyPrecipitation = weatherData['hourly']['precipitation_probability'].slice(currentHour, 24);
+    const hourlyPrecipitationUnits = weatherData['hourly_units']['precipitation_probability'];
+
+    // By default this is 7 days per week
+    const dailyTime = weatherData['daily']['time'];
+    const dailyTempMax = weatherData['daily']['temperature_2m_max'];
+    const dailyTempMaxUnits = weatherData['daily_units']['temperature_2m_max'];
+    const dailyTempMin = weatherData['daily']['temperature_2m_min'];
+    const dailyTempMinUnits = weatherData['daily_units']['temperature_2m_min'];
+    const dailyPrecipitationProbMax = weatherData['daily']['precipitation_probability_max'];
+    const dailyPrecipitationProbMaxUnits = weatherData['daily_units']['precipitation_probability_max'];
+
+    // I only want today's sunrise, sunset, and max UV index
+    const dailyTodaySunrise = weatherData['daily']['sunrise'].slice(0, 1);
+    const dailyTodaySunset = weatherData['daily']['sunset'].slice(0, 1);
+    const dailyTodayUVIndexMax= weatherData['daily']['uv_index_max'].slice(0, 1);
     
-    return { temp, tempUnits, realFeel, realFeelUnits, humidity, humidityUnits, windSpeed, windSpeedUnits };
+    return { currentTemp, currentTempUnits, currentRealFeel, currentRealFeelUnits, 
+        currentHumidity, currentHumidityUnits, currentWindSpeed, currentWindSpeedUnits,
+        hourlyTime, hourlyTemp, hourlyTempUnits, hourlyPrecipitation, hourlyPrecipitationUnits,
+        dailyTime, dailyTempMax, dailyTempMaxUnits, dailyTempMin, dailyTempMinUnits, 
+        dailyPrecipitationProbMax, dailyPrecipitationProbMaxUnits, dailyTodaySunrise,
+        dailyTodaySunset, dailyTodayUVIndexMax
+     };
 }
 
 export {

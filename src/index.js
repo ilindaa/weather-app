@@ -1,4 +1,5 @@
 import './style.css';
-import { createWeatherForm } from './display';
+import { createLoadingComponent, createWeatherForm } from './display';
 
 createWeatherForm();
+createLoadingComponent();
