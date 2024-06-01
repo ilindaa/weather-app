@@ -50,7 +50,7 @@ async function getWeather(latitude, longitude, useImperial) {
     let units = useSystem(useImperial);
     console.log("Units: " + units);
     try {
-        const response = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,apparent_temperature,wind_speed_10m&hourly=temperature_2m,precipitation_probability${units[0]}&${units[1]}&${units[2]}&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,sunrise,sunset,uv_index_max&timezone=auto`, {mode: 'cors'});
+        const response = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m&hourly=temperature_2m,precipitation_probability,weather_code${units[0]}&${units[1]}&${units[2]}&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,sunrise,sunset,uv_index_max,weather_code&timezone=auto`, {mode: 'cors'});
         const weatherData = await response.json();
         console.log("weatherData:");
         console.log(weatherData);
@@ -86,18 +86,20 @@ function processWeatherData(weatherData) {
     const currentRealFeelUnits = weatherData['current_units']['apparent_temperature'];
     const currentHumidity = weatherData['current']['relative_humidity_2m'];
     const currentHumidityUnits = weatherData['current_units']['relative_humidity_2m'];
+    const currentWeatherCode = weatherData['current']['weather_code'];
     const currentWindSpeed = weatherData['current']['wind_speed_10m'];
     const currentWindSpeedUnits = weatherData['current_units']['wind_speed_10m'];
 
-    // Todo: Need to get the current hour of the day (in 24 hours) based on the user's local time and their units
+    // Gets the current hour of the day (in 24 hours) based on the user's local time and their units
     const currentHour = new Date().getHours();
-    console.log(currentHour);
+
     // I only want the current 24 hours of the day
     const hourlyTime = weatherData['hourly']['time'].slice(currentHour, 24);
     const hourlyTemp = weatherData['hourly']['temperature_2m'].slice(currentHour, 24);
     const hourlyTempUnits = weatherData['hourly_units']['temperature_2m'];
     const hourlyPrecipitation = weatherData['hourly']['precipitation_probability'].slice(currentHour, 24);
     const hourlyPrecipitationUnits = weatherData['hourly_units']['precipitation_probability'];
+    const hourlyWeatherCode = weatherData['hourly']['weather_code'];
 
     // By default this is 7 days per week
     const dailyTime = weatherData['daily']['time'];
@@ -107,6 +109,7 @@ function processWeatherData(weatherData) {
     const dailyTempMinUnits = weatherData['daily_units']['temperature_2m_min'];
     const dailyPrecipitationProbMax = weatherData['daily']['precipitation_probability_max'];
     const dailyPrecipitationProbMaxUnits = weatherData['daily_units']['precipitation_probability_max'];
+    const dailyWeatherCode = weatherData['daily']['weather_code'];
 
     // I only want today's sunrise, sunset, and max UV index
     const dailyTodaySunrise = weatherData['daily']['sunrise'].slice(0, 1);
@@ -114,11 +117,11 @@ function processWeatherData(weatherData) {
     const dailyTodayUVIndexMax= weatherData['daily']['uv_index_max'].slice(0, 1);
     
     return { currentTemp, currentTempUnits, currentRealFeel, currentRealFeelUnits, 
-        currentHumidity, currentHumidityUnits, currentWindSpeed, currentWindSpeedUnits,
-        hourlyTime, hourlyTemp, hourlyTempUnits, hourlyPrecipitation, hourlyPrecipitationUnits,
-        dailyTime, dailyTempMax, dailyTempMaxUnits, dailyTempMin, dailyTempMinUnits, 
-        dailyPrecipitationProbMax, dailyPrecipitationProbMaxUnits, dailyTodaySunrise,
-        dailyTodaySunset, dailyTodayUVIndexMax
+        currentHumidity, currentHumidityUnits, currentWeatherCode, currentWindSpeed, 
+        currentWindSpeedUnits, hourlyTime, hourlyTemp, hourlyTempUnits, hourlyPrecipitation,
+        hourlyPrecipitationUnits, hourlyWeatherCode, dailyTime, dailyTempMax, dailyTempMaxUnits,
+        dailyTempMin, dailyTempMinUnits, dailyPrecipitationProbMax, dailyPrecipitationProbMaxUnits, 
+        dailyWeatherCode, dailyTodaySunrise, dailyTodaySunset, dailyTodayUVIndexMax
      };
 }
 
