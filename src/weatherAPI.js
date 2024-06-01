@@ -1,7 +1,9 @@
+import { displayGeocode, displayWeather } from "./display";
+
 // Handle the name if there are spaces
 function handleName(unhandledName) {
     let name = unhandledName;
-    if (unhandledName.includes('')) {
+    if (unhandledName.includes(' ')) {
         name = unhandledName.replaceAll(' ', '+');
     }
     return name;
@@ -18,7 +20,12 @@ async function getGeocoding(unhandledName) {
         console.log(geocodeData);
         let processedGeocodeData = processGeocodeData(geocodeData);
         console.log(processedGeocodeData);
-        getWeather(processedGeocodeData['latitude'], processedGeocodeData['longitude'], false);
+        displayGeocode(processedGeocodeData);
+
+        const tempBtn = document.querySelector('.temp-btn');
+        const useImperial = tempBtn.value;
+        
+        getWeather(processedGeocodeData['latitude'], processedGeocodeData['longitude'], useImperial);
     } catch (error) {
         console.log(error);
     }
@@ -31,7 +38,7 @@ function useSystem(useImperial) {
     // Celcius (default), m/s, millimeters (default)
     const metric = ["", "&wind_speed_unit=ms", ""];
     
-    if (useImperial === true) {
+    if (useImperial === "true") {
         return imperial;
     } else {
         return metric;
@@ -41,6 +48,7 @@ function useSystem(useImperial) {
 // Get the weather information based on the latitude and longitude
 async function getWeather(latitude, longitude, useImperial) {
     let units = useSystem(useImperial);
+    console.log("Units: " + units);
     try {
         const response = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,apparent_temperature,wind_speed_10m&hourly=temperature_2m,precipitation_probability${units[0]}&${units[1]}&${units[2]}&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,sunrise,sunset,uv_index_max&timezone=auto`, {mode: 'cors'});
         const weatherData = await response.json();
@@ -48,6 +56,7 @@ async function getWeather(latitude, longitude, useImperial) {
         console.log(weatherData);
         let processedWeatherData = processWeatherData(weatherData);
         console.log(processedWeatherData);
+        displayWeather(processedWeatherData);
     } catch (error) {
         console.log(error);
     }

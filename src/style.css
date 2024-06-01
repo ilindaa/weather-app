@@ -1,0 +1,20 @@
+.container, .display-weather {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.all-hours-div, .all-days-div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+}
+
+.all-hours-div {
+    overflow: auto;
+}
+
+.loading-component {
+    display: none;
+}

@@ -1,5 +1,7 @@
 import './style.css';
-import { createLoadingComponent, createWeatherForm } from './display';
+import { createHeader, createLoadingComponent, createTemperatureBtn, createWeatherForm } from './display';
 
+createHeader();
 createWeatherForm();
+createTemperatureBtn();
 createLoadingComponent();
