@@ -1,4 +1,4 @@
-import { getGeocoding } from './weatherAPI';
+import { getGeocoding, convertTime, convertWMO } from './weatherAPI';
 
 // Create the header of the app
 function createHeader() {
@@ -125,7 +125,7 @@ function displayWeather(processedWeatherData) {
     p2.textContent = "Real Feel: " + processedWeatherData['currentRealFeel'] + processedWeatherData['currentRealFeelUnits'];
     p3.textContent = "Humidity: " + processedWeatherData['currentHumidity'] + processedWeatherData['currentHumidityUnits'];
     p4.textContent = "Wind Speed: " + processedWeatherData['currentWindSpeed'] + " " + processedWeatherData['currentWindSpeedUnits'];
-    p15.textContent = "Weather: " + processedWeatherData['currentWeatherCode'];
+    p15.textContent = "Weather: " + convertWMO(processedWeatherData['currentWeatherCode']);
 
     const allHoursDiv = document.createElement('div');
     const allDaysDiv = document.createElement('div');
@@ -149,11 +149,10 @@ function displayWeather(processedWeatherData) {
 
         hourDiv.classList.add('hour-div');
 
-        const hourlyHour = new Date(processedWeatherData['hourlyTime'][indexStr]);
-        p5.textContent = "Hour: " + hourlyHour.toLocaleTimeString();
+        p5.textContent = "Hour: " + convertTime(processedWeatherData['hourlyTime'][indexStr]);
         p6.textContent = "Temperature: " + processedWeatherData['hourlyTemp'][indexStr] + processedWeatherData['hourlyTempUnits'];
         p7.textContent = "Precipitation: " + processedWeatherData['hourlyPrecipitation'][indexStr] + processedWeatherData['hourlyPrecipitationUnits'];
-        p16.textContent = "Weather: " + processedWeatherData['hourlyWeatherCode'][indexStr];
+        p16.textContent = "Weather: " + convertWMO(processedWeatherData['hourlyWeatherCode'][indexStr]);
 
         allHoursDiv.append(hourDiv);
         hourDiv.append(p5, p16, p6, p7);
@@ -170,12 +169,11 @@ function displayWeather(processedWeatherData) {
 
         dayDiv.classList.add('day-div');
 
-        const dailyDay = new Date(processedWeatherData['dailyTime'][indexStr]);
-        p8.textContent = "Day: " + dailyDay.toLocaleDateString();
+        p8.textContent = "Day: " + convertTime(processedWeatherData['dailyTime'][indexStr], true);
         p9.textContent = "Max Temperature: " + processedWeatherData['dailyTempMax'][indexStr] + processedWeatherData['dailyTempMaxUnits'];
         p10.textContent = "Min Temperature: " + processedWeatherData['dailyTempMin'][indexStr] + processedWeatherData['dailyTempMinUnits'];
         p11.textContent = "Precipitation: " + processedWeatherData['dailyPrecipitationProbMax'][indexStr] + processedWeatherData['dailyPrecipitationProbMaxUnits'];
-        p17.textContent = "Weather: " + processedWeatherData['dailyWeatherCode'][indexStr];
+        p17.textContent = "Weather: " + convertWMO(processedWeatherData['dailyWeatherCode'][indexStr]);
 
         allDaysDiv.append(dayDiv);
         dayDiv.append(p8, p17, p9, p10, p11);
@@ -185,10 +183,8 @@ function displayWeather(processedWeatherData) {
     const p13 = document.createElement('p');
     const p14 = document.createElement('p');
 
-    const sunrise = new Date(processedWeatherData['dailyTodaySunrise'][0]);
-    const sunset = new Date(processedWeatherData['dailyTodaySunset'][0]);
-    p12.textContent = "Sunrise: " + sunrise.toLocaleString();
-    p13.textContent = "Sunset: " + sunset.toLocaleString();
+    p12.textContent = "Sunrise: " + convertTime(processedWeatherData['dailyTodaySunrise'][0]);
+    p13.textContent = "Sunset: " + convertTime(processedWeatherData['dailyTodaySunset'][0]);
     p14.textContent = "Max UV Index: " + processedWeatherData['dailyTodayUVIndexMax'][0];
     miscDiv.append(p12, p13, p14);
 

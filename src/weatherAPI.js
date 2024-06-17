@@ -125,7 +125,63 @@ function processWeatherData(weatherData) {
      };
 }
 
+// Converts the weather code to the description
+function convertWMO(code) {
+    const description = weatherCodeToDescription[code] || 'Not available';
+    return description;
+}
+
+const weatherCodeToDescription = {
+    0: "Clear sky",
+    1: "Mainly clear", 
+    2: "Partly cloudy", 
+    3: "Overcast",
+    45: "Fog",
+    48: "Depositing rime fog",
+    51: "Light drizzle",
+    53: "Moderate drizzle", 
+    55: "Dense drizzle",
+    56: "Light freezing drizzle",
+    57: "Dense freezing drizzle",
+    61: "Slight rain",
+    63: "Moderate rain",
+    65: "Heavy rain",
+    66: "Light freezing rain",
+    67: "Heavy freezing rain",
+    71: "Slight snow fall",
+    73: "Moderate snow fall",
+    75: "Heavy snow fall",
+    77: "Snow grains",
+    80: "Slight rain showers",
+    81: "Moderate rain showers", 
+    82: "Violent rain showers",
+    85: "Slight snow showers",
+    86: "Heavy snow showers",
+    95: "Slight or moderate thunderstorm",
+    96: "Thunderstorm with slight hail",
+    99: "Thunderstorm with heavy hail",
+}
+
+// Converts the ISO8601 timestamp to the user's local time and returns it
+// localDate if set to true then the localTime is in date string form
+function convertTime(timestamp, localDate = false) {
+    // Get the date using the ISO8601 timestamp
+    const date = new Date(timestamp);
+    // Get the timezone offset difference (minutes)
+    const timezoneOffsetDiff = date.getTimezoneOffset();
+    console.log("Timezone: " + timezoneOffsetDiff);
+    // Adjust the time based on the timezone offset difference (milliseconds)
+    date.setTime(date.getTime() + (timezoneOffsetDiff * 60000));
+    let localTime = date.toLocaleString();
+    if (localDate) {
+        localTime = date.toLocaleDateString();
+    }
+    return localTime;
+}
+
 export {
     getGeocoding,
-    getWeather
+    getWeather,
+    convertWMO,
+    convertTime
 };
