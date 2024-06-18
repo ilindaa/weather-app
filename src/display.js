@@ -36,12 +36,13 @@ function createTemperatureBtn() {
 
     tempBtn.classList.add('temp-btn');
     tempBtn.type = 'button';
-    //
+    // Default: Celcius
     tempBtn.textContent = '°C';
     // Boolean value for if it uses imperial
     tempBtn.value = false;
+    // If on Fahrenheit, change to Celcius and vice versa
     tempBtn.addEventListener('click', () => {
-        if (tempBtn.value == true) {
+        if (tempBtn.value == "true") {
             tempBtn.textContent = '°C';
             tempBtn.value = false;
         } else {
@@ -51,7 +52,6 @@ function createTemperatureBtn() {
         const unhandledName = document.querySelector('.search-name');
         if (unhandledName) {
             getGeocoding(unhandledName.textContent);
-            console.log(unhandledName.textContent);
         }
     });
     document.body.prepend(tempBtn);

@@ -3,9 +3,17 @@ import { displayGeocode, displayWeather } from "./display";
 // Handle the name if there are spaces
 function handleName(unhandledName) {
     let name = unhandledName;
-    if (unhandledName.includes(' ')) {
-        name = unhandledName.replaceAll(' ', '+');
+
+    if (name.includes('City: ')) {
+        name = name.slice(6);
+        console.log("Sliced! " + name);
     }
+
+    if (name.includes(' ')) {
+        name = name.replaceAll(' ', '+');
+        console.log("Handled spaces! " + name);
+    }
+
     return name;
 }
 
@@ -169,7 +177,6 @@ function convertTime(timestamp, localDate = false) {
     const date = new Date(timestamp);
     // Get the timezone offset difference (minutes)
     const timezoneOffsetDiff = date.getTimezoneOffset();
-    console.log("Timezone: " + timezoneOffsetDiff);
     // Adjust the time based on the timezone offset difference (milliseconds)
     date.setTime(date.getTime() + (timezoneOffsetDiff * 60000));
     let localTime = date.toLocaleString();
