@@ -1,3 +1,105 @@
+:root {
+    --blue: #6f89ca;
+    --darkBlue: #333961;
+    --gray: gray;
+    --pink: #e48ba9;
+    --white: #fff;
+}
+
+* {
+    color: var(--white);
+    font-family: Helvetica, sans-serif;
+}
+
+/* Image source: Makoto Shinkai, 5 cm/s */
+/* background color as fallback, fixed attachment for viewport */
+body {
+    background-color: var(--pink);
+    background-image: url("Images/5cmPerSec.jpg");
+    background-attachment: fixed;
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.search-bar-div,
+.search-svg-div,
+.display-geocode,
+.today-div,
+.misc-div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.display-geocode,
+.today-div,
+.misc-div {
+    flex-direction: column;
+}
+
+input[type='search'],
+button {
+    background-color: var(--white);
+    border: 0;
+    font-size: 1rem;
+}
+
+input[type='search'] {
+    outline: none;
+    border-radius: 24px;
+    padding: 1rem 1.5rem;
+}
+
+button {
+    height: 50px;
+    width: 50px;
+    border-radius: 50%;
+    text-align: center;
+}
+
+.submit-btn {
+    background-color: transparent;
+}
+
+button:hover {
+    cursor: pointer;
+}
+
+.temp-btn:hover {
+    background-color: var(--pink);
+}
+
+h1,
+.temp-btn,
+#search {
+    color: var(--darkBlue);
+}
+
+h1,
+h2 {
+    letter-spacing: 0.5rem;
+    text-transform: lowercase;
+    text-align: center;
+}
+
+h2 {
+    padding-top: 1rem;
+}
+
+.display-weather > h2 {
+    margin-bottom: -2rem;
+}
+
+h2,
+.display-geocode,
+.today-div,
+.all-hours-div,
+.all-days-div,
+.misc-div {
+    background-color: rgba(0, 0, 0, 0.25);
+}
+
 .container, .display-weather {
     display: flex;
     flex-direction: column;

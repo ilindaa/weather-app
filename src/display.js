@@ -1,9 +1,10 @@
 import { getGeocoding, convertTime, convertWMO } from './weatherAPI';
+import searchSvg from './Icons/search_24dp_FILL0_wght400_GRAD0_opsz24.svg';
 
 // Create the header of the app
 function createHeader() {
     const h1 = document.createElement('h1');
-    h1.textContent = "Weather";
+    h1.textContent = "Weather App";
     document.body.prepend(h1);
 }
 
@@ -31,15 +32,16 @@ function hideLoadingComponent() {
 
 // Create a temperature button in which one can toggle from Fahrenheit to Celcius and vice versa
 function createTemperatureBtn() {
-    const container = document.querySelector('.form-container');
     const tempBtn = document.createElement('button');
 
     tempBtn.classList.add('temp-btn');
     tempBtn.type = 'button';
-    tempBtn.textContent = '°F';
-    tempBtn.value = true;
+    //
+    tempBtn.textContent = '°C';
+    // Boolean value for if it uses imperial
+    tempBtn.value = false;
     tempBtn.addEventListener('click', () => {
-        if (tempBtn.textContent == '°F') {
+        if (tempBtn.value == true) {
             tempBtn.textContent = '°C';
             tempBtn.value = false;
         } else {
@@ -52,30 +54,39 @@ function createTemperatureBtn() {
             console.log(unhandledName.textContent);
         }
     });
-    container.prepend(tempBtn);
+    document.body.prepend(tempBtn);
 }
 
 // Create the weather form for the user to search a location
 function createWeatherForm() {
     const formContainer = document.querySelector('.form-container');
     const form = document.createElement('form');
+    const searchBarDiv = document.createElement('div');
     const search = document.createElement('input');
     const submitBtn = document.createElement('button');
+    const searchSvgDiv = document.createElement('div');
+    const searchIcon = document.createElement('img');
 
     search.type = 'search';
     search.id = 'search';
     search.name = 'search';
+    search.placeholder = 'Search a city...';
 
-    submitBtn.textContent = 'Search';
     submitBtn.type = 'submit';
     submitBtn.value = 'Submit';
+    searchIcon.src = searchSvg;
 
     form.classList.add('weather-form');
+    searchBarDiv.classList.add('search-bar-div');
     search.classList.add('search-bar');
     submitBtn.classList.add('submit-btn');
+    searchSvgDiv.classList.add('search-svg-div');
 
     formContainer.prepend(form);
-    form.append(search, submitBtn);
+    form.append(searchBarDiv);
+    searchBarDiv.append(submitBtn, search);
+    submitBtn.append(searchSvgDiv);
+    searchSvgDiv.append(searchIcon);
 
     const weatherForm = document.querySelector('.weather-form');
 
@@ -83,9 +94,13 @@ function createWeatherForm() {
     weatherForm.addEventListener('submit', (event) => {
         event.preventDefault();
         const searchBar = document.querySelector('.search-bar');
-        showLoadingComponent();
-        getGeocoding(searchBar.value);
-        console.log("Form submitted!");
+        if(searchBar.value != '') {
+            showLoadingComponent();
+            getGeocoding(searchBar.value);
+            console.log("Form submitted!");
+        } else {
+            console.log("Form did not submit, it's empty!");
+        }
     });
 
 }
@@ -131,12 +146,22 @@ function displayWeather(processedWeatherData) {
     const allDaysDiv = document.createElement('div');
     const miscDiv = document.createElement('div');
 
+    const header1 = document.createElement('h2');
+    const header2 = document.createElement('h2');
+    const header3 = document.createElement('h2');
+    const header4 = document.createElement('h2');
+
     todayDiv.classList.add('today-div');
     allHoursDiv.classList.add('all-hours-div');
     allDaysDiv.classList.add('all-days-div');
     miscDiv.classList.add('misc-div');
 
-    displayWeatherDiv.append(todayDiv, allHoursDiv, allDaysDiv, miscDiv);
+    header1.textContent = 'Current';
+    header2.textContent = 'Hourly Weather';
+    header3.textContent = 'Daily Weather';
+    header4.textContent = 'Misc.';
+
+    displayWeatherDiv.append(header1, todayDiv, header2, allHoursDiv, header3, allDaysDiv, header4, miscDiv);
     todayDiv.append(p15, p1, p2, p3, p4);
 
     for (let i = 0; i < processedWeatherData['hourlyTime'].length; i++) {
@@ -170,8 +195,8 @@ function displayWeather(processedWeatherData) {
         dayDiv.classList.add('day-div');
 
         p8.textContent = "Day: " + convertTime(processedWeatherData['dailyTime'][indexStr], true);
-        p9.textContent = "Max Temperature: " + processedWeatherData['dailyTempMax'][indexStr] + processedWeatherData['dailyTempMaxUnits'];
-        p10.textContent = "Min Temperature: " + processedWeatherData['dailyTempMin'][indexStr] + processedWeatherData['dailyTempMinUnits'];
+        p9.textContent = "Max Temp: " + processedWeatherData['dailyTempMax'][indexStr] + processedWeatherData['dailyTempMaxUnits'];
+        p10.textContent = "Min Temp: " + processedWeatherData['dailyTempMin'][indexStr] + processedWeatherData['dailyTempMinUnits'];
         p11.textContent = "Precipitation: " + processedWeatherData['dailyPrecipitationProbMax'][indexStr] + processedWeatherData['dailyPrecipitationProbMaxUnits'];
         p17.textContent = "Weather: " + convertWMO(processedWeatherData['dailyWeatherCode'][indexStr]);
 
